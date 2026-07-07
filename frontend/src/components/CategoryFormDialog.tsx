@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
+import { useEffect, useState, type FormEvent } from 'react';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, TextField, Typography } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { categoriesApi } from '../api/categories';
 import type { Category, CategoryRequest } from '../types';
@@ -18,6 +18,14 @@ export function CategoryFormDialog({ open, onClose, onSaved, category }: Props) 
   const [name, setName] = useState(category?.name ?? '');
   const [fieldError, setFieldError] = useState('');
   const [saving, setSaving] = useState(false);
+
+  // Reseta o formulário sempre que o diálogo abre (limpa texto do cadastro anterior).
+  useEffect(() => {
+    if (open) {
+      setName(category?.name ?? '');
+      setFieldError('');
+    }
+  }, [open, category]);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -49,8 +57,14 @@ export function CategoryFormDialog({ open, onClose, onSaved, category }: Props) 
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="xs">
       <form onSubmit={handleSubmit}>
-        <DialogTitle>{isEdit ? 'Editar categoria' : 'Nova categoria'}</DialogTitle>
-        <DialogContent>
+        <DialogTitle sx={{ pb: 1 }}>
+          <Typography variant="h6" component="span" sx={{ fontWeight: 700 }}>{isEdit ? 'Editar categoria' : 'Nova categoria'}</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ display: 'block' }}>
+            {isEdit ? 'Atualize o nome da categoria' : 'Dê um nome à nova categoria'}
+          </Typography>
+        </DialogTitle>
+        <Divider />
+        <DialogContent sx={{ py: 3 }}>
           <TextField
             autoFocus
             label="Nome"
@@ -60,11 +74,11 @@ export function CategoryFormDialog({ open, onClose, onSaved, category }: Props) 
             helperText={fieldError}
             required
             fullWidth
-            sx={{ mt: 1 }}
           />
         </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose} color="inherit">Cancelar</Button>
+        <Divider />
+        <DialogActions sx={{ p: 2.5, gap: 1 }}>
+          <Button onClick={onClose} variant="text" color="inherit">Cancelar</Button>
           <Button type="submit" disabled={saving}>{saving ? 'Salvando…' : 'Salvar'}</Button>
         </DialogActions>
       </form>

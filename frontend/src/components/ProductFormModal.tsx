@@ -1,5 +1,5 @@
-import { useState, type FormEvent } from 'react';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, MenuItem, TextField, Box } from '@mui/material';
+import { useEffect, useState, type FormEvent } from 'react';
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, Divider, MenuItem, TextField, Typography } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { productsApi } from '../api/products';
 import type { Category, Product, ProductRequest } from '../types';
@@ -33,6 +33,20 @@ export function ProductFormModal({ open, onClose, onSaved, categories, product }
   });
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+
+  // Reseta o formulário sempre que o diálogo abre (limpa texto do cadastro anterior).
+  useEffect(() => {
+    if (open) {
+      setForm({
+        name: product?.name ?? '',
+        price: product?.price?.toString() ?? '',
+        stockQuantity: product?.stockQuantity?.toString() ?? '',
+        description: product?.description ?? '',
+        categoryId: product?.categoryId ?? '',
+      });
+      setFieldErrors({});
+    }
+  }, [open, product]);
 
   const update = (field: keyof FormState, value: string) => {
     setForm((f) => ({ ...f, [field]: value }));
@@ -75,9 +89,15 @@ export function ProductFormModal({ open, onClose, onSaved, categories, product }
   return (
     <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
       <form onSubmit={handleSubmit}>
-        <DialogTitle>{isEdit ? 'Editar produto' : 'Novo produto'}</DialogTitle>
-        <DialogContent>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+        <DialogTitle sx={{ pb: 1 }}>
+          <Typography variant="h6" component="span" sx={{ fontWeight: 700 }}>{isEdit ? 'Editar produto' : 'Novo produto'}</Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ display: 'block' }}>
+            {isEdit ? 'Atualize os dados do produto' : 'Preencha os dados do novo produto'}
+          </Typography>
+        </DialogTitle>
+        <Divider />
+        <DialogContent sx={{ py: 3 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
             <TextField
               label="Nome"
               value={form.name}
@@ -90,8 +110,7 @@ export function ProductFormModal({ open, onClose, onSaved, categories, product }
             <Box sx={{ display: 'flex', gap: 2 }}>
               <TextField
                 label="Preço"
-                type="number"
-                inputProps={{ step: '0.01', min: 0 }}
+                inputMode="decimal"
                 value={form.price}
                 onChange={(e) => update('price', e.target.value)}
                 error={Boolean(fieldErrors.price)}
@@ -101,8 +120,7 @@ export function ProductFormModal({ open, onClose, onSaved, categories, product }
               />
               <TextField
                 label="Estoque"
-                type="number"
-                inputProps={{ step: '1', min: 0 }}
+                inputMode="numeric"
                 value={form.stockQuantity}
                 onChange={(e) => update('stockQuantity', e.target.value)}
                 error={Boolean(fieldErrors.stockQuantity)}
@@ -138,8 +156,9 @@ export function ProductFormModal({ open, onClose, onSaved, categories, product }
             </TextField>
           </Box>
         </DialogContent>
-        <DialogActions>
-          <Button onClick={onClose} color="inherit">Cancelar</Button>
+        <Divider />
+        <DialogActions sx={{ p: 2.5, gap: 1 }}>
+          <Button onClick={onClose} variant="text" color="inherit">Cancelar</Button>
           <Button type="submit" disabled={saving}>{saving ? 'Salvando…' : 'Salvar'}</Button>
         </DialogActions>
       </form>
