@@ -2,6 +2,7 @@ package com.caio.product_management.service;
 
 import com.caio.product_management.domain.Category;
 import com.caio.product_management.domain.Product;
+import com.caio.product_management.dto.ProductPatchDTO;
 import com.caio.product_management.dto.ProductRequestDTO;
 import com.caio.product_management.dto.ProductResponseDTO;
 import com.caio.product_management.exception.ResourceNotFoundException;
@@ -29,8 +30,25 @@ public class ProductService {
     }
 
     @Transactional(readOnly = true)
+    public List<ProductResponseDTO> findByCategory(UUID categoryId) {
+        if (!categoryRepository.existsById(categoryId)) {
+            throw new ResourceNotFoundException("Category not found with id: " + categoryId);
+        }
+        return productRepository.findByCategoryId(categoryId).stream()
+                .map(ProductResponseDTO::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public ProductResponseDTO findById(UUID id) {
         return ProductResponseDTO.from(findProductOrThrow(id));
+    }
+
+    @Transactional(readOnly = true)
+    public ProductResponseDTO findByName(String name) {
+        return productRepository.findByName(name)
+                .map(ProductResponseDTO::from)
+                .orElseThrow(() -> new ResourceNotFoundException("Product not found with name: " + name));
     }
 
     @Transactional
@@ -54,6 +72,27 @@ public class ProductService {
         product.setStockQuantity(request.stockQuantity());
         product.setDescription(request.description());
         product.setCategory(category);
+        return ProductResponseDTO.from(productRepository.save(product));
+    }
+
+    @Transactional
+    public ProductResponseDTO patch(UUID id, ProductPatchDTO request) {
+        Product product = findProductOrThrow(id);
+        if (request.name() != null) {
+            product.setName(request.name());
+        }
+        if (request.price() != null) {
+            product.setPrice(request.price());
+        }
+        if (request.stockQuantity() != null) {
+            product.setStockQuantity(request.stockQuantity());
+        }
+        if (request.description() != null) {
+            product.setDescription(request.description());
+        }
+        if (request.categoryId() != null) {
+            product.setCategory(findCategoryOrThrow(request.categoryId()));
+        }
         return ProductResponseDTO.from(productRepository.save(product));
     }
 
