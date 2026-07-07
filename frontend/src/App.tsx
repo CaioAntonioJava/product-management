@@ -1,13 +1,18 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
 import { ThemeProvider, CssBaseline } from '@mui/material';
 import { SnackbarProvider } from 'notistack';
-import { theme } from './theme';
+import { useMemo } from 'react';
+import { AppThemeProvider, useThemeMode } from './context/ThemeContext';
+import { createAppTheme } from './theme';
 import { Layout } from './components/Layout';
 import { ProductsPage } from './pages/ProductsPage';
 import { CategoriesPage } from './pages/CategoriesPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 
-export function App() {
+function ThemedApp() {
+  const { mode } = useThemeMode();
+  const theme = useMemo(() => createAppTheme(mode), [mode]);
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
@@ -24,5 +29,13 @@ export function App() {
         </BrowserRouter>
       </SnackbarProvider>
     </ThemeProvider>
+  );
+}
+
+export function App() {
+  return (
+    <AppThemeProvider>
+      <ThemedApp />
+    </AppThemeProvider>
   );
 }
