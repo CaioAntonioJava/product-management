@@ -1,4 +1,4 @@
-package com.caio.product_management.category;
+package com.caio.product_management.domain;
 
 import com.caio.product_management.base.BaseEntity;
 import jakarta.persistence.Column;

@@ -1,4 +1,4 @@
-package com.caio.product_management.category;
+package com.caio.product_management.dto;
 
 import java.time.LocalDateTime;
 import java.util.UUID;

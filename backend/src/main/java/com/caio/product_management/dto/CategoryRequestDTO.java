@@ -1,4 +1,4 @@
-package com.caio.product_management.category;
+package com.caio.product_management.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

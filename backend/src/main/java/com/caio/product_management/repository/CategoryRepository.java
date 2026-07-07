@@ -1,5 +1,6 @@
-package com.caio.product_management.category;
+package com.caio.product_management.repository;
 
+import com.caio.product_management.domain.Category;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

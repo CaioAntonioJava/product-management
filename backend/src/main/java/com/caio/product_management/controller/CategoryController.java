@@ -1,5 +1,8 @@
-package com.caio.product_management.category;
+package com.caio.product_management.controller;
 
+import com.caio.product_management.dto.CategoryRequestDTO;
+import com.caio.product_management.dto.CategoryResponseDTO;
+import com.caio.product_management.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

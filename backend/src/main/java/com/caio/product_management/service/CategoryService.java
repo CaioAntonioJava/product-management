@@ -1,7 +1,11 @@
-package com.caio.product_management.category;
+package com.caio.product_management.service;
 
+import com.caio.product_management.domain.Category;
+import com.caio.product_management.dto.CategoryRequestDTO;
+import com.caio.product_management.dto.CategoryResponseDTO;
 import com.caio.product_management.exception.ResourceAlreadyExistsException;
 import com.caio.product_management.exception.ResourceNotFoundException;
+import com.caio.product_management.repository.CategoryRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
