@@ -1,5 +1,7 @@
 package com.caio.product_management.dto;
 
+import com.caio.product_management.config.CommaBigDecimalDeserializer;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
@@ -12,6 +14,7 @@ public record ProductPatchDTO(
         String name,
 
         @Positive(message = "Price must be positive")
+        @JsonDeserialize(using = CommaBigDecimalDeserializer.class)
         BigDecimal price,
 
         @PositiveOrZero(message = "Stock quantity must be zero or positive")

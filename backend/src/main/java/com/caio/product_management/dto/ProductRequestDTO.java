@@ -1,5 +1,7 @@
 package com.caio.product_management.dto;
 
+import com.caio.product_management.config.CommaBigDecimalDeserializer;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -16,6 +18,7 @@ public record ProductRequestDTO(
 
         @NotNull(message = "Price is required")
         @Positive(message = "Price must be positive")
+        @JsonDeserialize(using = CommaBigDecimalDeserializer.class)
         BigDecimal price,
 
         @NotNull(message = "Stock quantity is required")
