@@ -93,10 +93,6 @@ BUILD SUCCESS
 
 O relatório completo em HTML/XML fica disponível em `backend/target/surefire-reports/`.
 
-### Por que `!ProductManagementApplicationTests` está excluído?
-
-Esse teste usa `@SpringBootTest` e tenta carregar o contexto completo da aplicação (incluindo conexão com MySQL). Como os testes unitários não devem depender de infraestrutura externa, ele é deixado de fora nesta suíte. Para rodá-lo, é preciso ter o MySQL acessível conforme `backend/src/main/resources/application.properties`.
-
 ## Notas
 
 - O frontend se comunica com o backend em `http://localhost:8080/api`. Essa URL é injetada no build via `VITE_API_URL` (com default `http://localhost:8080/api`) e pode ser alterada no `docker-compose.yml`.
