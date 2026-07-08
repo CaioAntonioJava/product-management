@@ -12,7 +12,7 @@ export interface Product {
 
 export interface ProductRequest {
   name: string;
-  price: number;
+  price: string;
   stockQuantity: number;
   description?: string;
   categoryId: string;
@@ -20,7 +20,7 @@ export interface ProductRequest {
 
 export interface ProductPatch {
   name?: string;
-  price?: number;
+  price?: string;
   stockQuantity?: number;
   description?: string;
   categoryId?: string;

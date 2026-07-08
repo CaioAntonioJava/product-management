@@ -132,7 +132,7 @@ export function ProductsPage() {
           </Grid>
           <Grid item xs={12} sm={6} md={3}>
             <StatCard
-              label="Estoque baixo"
+              label="Produtos sem estoque"
               value={stats.lowStock}
               icon={<WarningAmberRounded />}
               gradient="linear-gradient(135deg, #f59e0b, #ef4444)"

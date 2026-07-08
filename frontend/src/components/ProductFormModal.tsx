@@ -20,13 +20,20 @@ interface FormState {
   categoryId: string;
 }
 
+// Formata um número para exibição no padrão pt-BR (vírgula decimal), sem agrupar milhares.
+function formatPriceForInput(value?: number): string {
+  if (value === undefined || value === null) return '';
+  const parts = value.toFixed(2).split('.');
+  return `${parts[0]},${parts[1]}`;
+}
+
 export function ProductFormModal({ open, onClose, onSaved, categories, product }: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const isEdit = Boolean(product);
 
   const [form, setForm] = useState<FormState>({
     name: product?.name ?? '',
-    price: product?.price?.toString() ?? '',
+    price: formatPriceForInput(product?.price),
     stockQuantity: product?.stockQuantity?.toString() ?? '',
     description: product?.description ?? '',
     categoryId: product?.categoryId ?? '',
@@ -39,7 +46,7 @@ export function ProductFormModal({ open, onClose, onSaved, categories, product }
     if (open) {
       setForm({
         name: product?.name ?? '',
-        price: product?.price?.toString() ?? '',
+        price: formatPriceForInput(product?.price),
         stockQuantity: product?.stockQuantity?.toString() ?? '',
         description: product?.description ?? '',
         categoryId: product?.categoryId ?? '',
@@ -60,7 +67,7 @@ export function ProductFormModal({ open, onClose, onSaved, categories, product }
 
     const payload: ProductRequest = {
       name: form.name.trim(),
-      price: Number(form.price),
+      price: form.price.trim(),
       stockQuantity: Number(form.stockQuantity),
       description: form.description.trim() || undefined,
       categoryId: form.categoryId,
@@ -110,11 +117,12 @@ export function ProductFormModal({ open, onClose, onSaved, categories, product }
             <Box sx={{ display: 'flex', gap: 2 }}>
               <TextField
                 label="Preço"
+                placeholder="0,00"
                 inputMode="decimal"
                 value={form.price}
                 onChange={(e) => update('price', e.target.value)}
                 error={Boolean(fieldErrors.price)}
-                helperText={fieldErrors.price}
+                helperText={fieldErrors.price ?? 'Use vírgula para decimais (ex.: 19,99)'}
                 required
                 fullWidth
               />
