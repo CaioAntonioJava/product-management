@@ -27,6 +27,36 @@ function formatPriceForInput(value?: number): string {
   return `${parts[0]},${parts[1]}`;
 }
 
+// Normaliza o texto digitado pelo usuário para que sempre tenha os centavos.
+// Entradas válidas:
+//   ""            -> ""
+//   "19"          -> "19,00"
+//   "19,9"        -> "19,90"
+//   "19,99"       -> "19,99"
+//   "19.99"       -> "19,99"
+//   ",50"         -> "0,50"
+//   "1.234,56"    -> "1234,56"
+// Caso não consiga extrair um número, devolve o texto original para que a
+// validação do backend exiba a mensagem de erro apropriada.
+function normalizePriceCents(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return '';
+
+  // Remove separador de milhar (ponto) quando há vírgula como decimal: "1.234,56"
+  let cleaned = trimmed;
+  const hasComma = cleaned.includes(',');
+  if (hasComma) {
+    cleaned = cleaned.replace(/\./g, '');
+  }
+  // Troca vírgula por ponto para o parse e remove tudo que não for dígito/pono/sinal.
+  cleaned = cleaned.replace(',', '.').replace(/[^\d.]/g, '');
+
+  const num = Number(cleaned);
+  if (!Number.isFinite(num)) return raw;
+
+  return num.toFixed(2).replace('.', ',');
+}
+
 export function ProductFormModal({ open, onClose, onSaved, categories, product }: Props) {
   const { enqueueSnackbar } = useSnackbar();
   const isEdit = Boolean(product);
@@ -58,6 +88,11 @@ export function ProductFormModal({ open, onClose, onSaved, categories, product }
   const update = (field: keyof FormState, value: string) => {
     setForm((f) => ({ ...f, [field]: value }));
     setFieldErrors((e) => ({ ...e, [field]: '' }));
+  };
+
+  // Ao sair do campo de preço, completa com ",00" caso o usuário não tenha digitado os centavos.
+  const handlePriceBlur = () => {
+    setForm((f) => ({ ...f, price: normalizePriceCents(f.price) }));
   };
 
   const handleSubmit = async (e: FormEvent) => {
@@ -121,6 +156,7 @@ export function ProductFormModal({ open, onClose, onSaved, categories, product }
                 inputMode="decimal"
                 value={form.price}
                 onChange={(e) => update('price', e.target.value)}
+                onBlur={handlePriceBlur}
                 error={Boolean(fieldErrors.price)}
                 helperText={fieldErrors.price ?? 'Use vírgula para decimais (ex.: 19,99)'}
                 required
