@@ -37,7 +37,7 @@ public class ProductService {
     @Transactional(readOnly = true)
     public List<ProductResponseDTO> findByCategory(UUID categoryId) {
         if (!categoryRepository.existsById(categoryId)) {
-            throw new ResourceNotFoundException("Category not found with id: " + categoryId);
+            throw new ResourceNotFoundException("Categoria não encontrada com o ID: " + categoryId);
         }
         return productRepository.findByCategoryId(categoryId).stream()
                 .map(ProductResponseDTO::from)
@@ -102,12 +102,12 @@ public class ProductService {
 
     private Product findProductOrThrow(UUID id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Produto não encontrado com o ID: " + id));
     }
 
     private Category findCategoryOrThrow(UUID categoryId) {
         return categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + categoryId));
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada com o ID: " + categoryId));
     }
 
 }

@@ -34,7 +34,7 @@ public class CategoryService {
     @Transactional
     public CategoryResponseDTO create(CategoryRequestDTO request) {
         if (categoryRepository.existsByName(request.name())) {
-            throw new ResourceAlreadyExistsException("Category with name '" + request.name() + "' already exists");
+            throw new ResourceAlreadyExistsException("Já existe uma categoria com o nome '" + request.name() + "'");
         }
         Category category = new Category();
         category.setName(request.name());
@@ -46,7 +46,7 @@ public class CategoryService {
         Category category = findCategoryOrThrow(id);
         if (!category.getName().equals(request.name())
                 && categoryRepository.existsByName(request.name())) {
-            throw new ResourceAlreadyExistsException("Category with name '" + request.name() + "' already exists");
+            throw new ResourceAlreadyExistsException("Já existe uma categoria com o nome '" + request.name() + "'");
         }
         category.setName(request.name());
         return toResponse(categoryRepository.save(category));
@@ -60,7 +60,7 @@ public class CategoryService {
 
     private Category findCategoryOrThrow(UUID id) {
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Category not found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Categoria não encontrada com o ID: " + id));
     }
 
     private CategoryResponseDTO toResponse(Category category) {
