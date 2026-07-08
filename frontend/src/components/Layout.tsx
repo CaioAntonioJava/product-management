@@ -5,6 +5,8 @@ import Inventory2Icon from '@mui/icons-material/Inventory2Rounded';
 import CategoryIcon from '@mui/icons-material/CategoryRounded';
 import { Link, useLocation } from 'react-router-dom';
 import { ThemeToggle } from './ThemeToggle';
+import { Footer } from './Footer';
+import { ScrollToTop } from './ScrollToTop';
 import { BRAND_GRADIENT } from '../theme';
 
 const drawerWidth = 260;
@@ -113,10 +115,12 @@ export function Layout({ children }: { children: ReactNode }) {
           {drawer}
         </Drawer>
       </Box>
-      <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, sm: 3, md: 4 }, width: { sm: `calc(100% - ${drawerWidth}px)` }, maxWidth: 1400, mx: 'auto' }}>
+      <Box component="main" sx={{ flexGrow: 1, p: { xs: 2, sm: 3, md: 4 }, width: { sm: `calc(100% - ${drawerWidth}px)` }, maxWidth: 1400, mx: 'auto', display: 'flex', flexDirection: 'column' }}>
         <Toolbar />
         {children}
+        <Footer />
       </Box>
+      <ScrollToTop />
     </Box>
   );
 }
