@@ -1,4 +1,4 @@
-# Product Management — Execução via Docker
+# Product Management
 
 Este projeto roda **backend (Spring Boot)**, **frontend (React + Vite)** e **MySQL 8** em containers.
 O único pré-requisito é ter o **Docker** instalado (com o Docker Compose v2, já embutido no Docker Desktop).
@@ -50,6 +50,52 @@ product-management/
     ├── nginx.conf              # Serve o SPA
     └── .dockerignore
 ```
+
+## Como rodar os testes
+
+Os testes unitários do backend ficam em `backend/src/test/java` e cobrem serviços, controllers, DTOs, validações e tratamento de exceções. Não exigem banco de dados em execução.
+
+### Pré-requisitos
+
+- **Java 17** (ou superior) — apenas para rodar os testes localmente; o Docker continua dispensável.
+
+### Rodar todos os testes unitários
+
+A partir da raiz do projeto:
+
+**Windows (CMD / PowerShell):**
+```bash
+cd backend
+.\mvnw.cmd test -Dtest='!ProductManagementApplicationTests,*ServiceTest,*ControllerTest,GlobalExceptionHandlerTest,ProductResponseDTOTest,CommaBigDecimalDeserializerTest,DtoValidationTest'
+```
+
+**Linux / macOS:**
+```bash
+cd backend
+./mvnw test -Dtest='!ProductManagementApplicationTests,*ServiceTest,*ControllerTest,GlobalExceptionHandlerTest,ProductResponseDTOTest,CommaBigDecimalDeserializerTest,DtoValidationTest'
+```
+
+### Rodar uma classe de teste específica
+
+```bash
+cd backend
+.\mvnw.cmd test -Dtest=CategoryServiceTest
+```
+
+### Relatório resumido
+
+Após a execução, o Maven imprime no console um resumo por classe, por exemplo:
+
+```
+Tests run: 78, Failures: 0, Errors: 0, Skipped: 0
+BUILD SUCCESS
+```
+
+O relatório completo em HTML/XML fica disponível em `backend/target/surefire-reports/`.
+
+### Por que `!ProductManagementApplicationTests` está excluído?
+
+Esse teste usa `@SpringBootTest` e tenta carregar o contexto completo da aplicação (incluindo conexão com MySQL). Como os testes unitários não devem depender de infraestrutura externa, ele é deixado de fora nesta suíte. Para rodá-lo, é preciso ter o MySQL acessível conforme `backend/src/main/resources/application.properties`.
 
 ## Notas
 
