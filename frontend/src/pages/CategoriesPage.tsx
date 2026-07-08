@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   Avatar, Box, Button, Grid, IconButton, Paper, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Toolbar, Typography,
 } from '@mui/material';
-import { Add, Delete, Edit, CategoryRounded } from '@mui/icons-material';
+import { Add, Delete, Edit, CategoryRounded, FileDownloadRounded } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { useSnackbar } from 'notistack';
 import { useCategories } from '../hooks/useCategories';
@@ -13,6 +13,7 @@ import { EmptyState } from '../components/EmptyState';
 import { StatCard } from '../components/StatCard';
 import { PageTransition } from '../components/PageTransition';
 import { BRAND_GRADIENT } from '../theme';
+import { exportCategoriesToExcel } from '../utils/exports';
 import type { Category } from '../types';
 
 function formatDate(value: string) {
@@ -40,6 +41,15 @@ export function CategoriesPage() {
 
   const openCreate = () => { setEditing(null); setFormOpen(true); };
   const openEdit = (c: Category) => { setEditing(c); setFormOpen(true); };
+
+  const handleExport = () => {
+    try {
+      exportCategoriesToExcel(categories);
+      enqueueSnackbar(`${categories.length} categoria(s) exportada(s)`, { variant: 'success' });
+    } catch (err) {
+      enqueueSnackbar(err instanceof Error ? err.message : 'Erro ao exportar', { variant: 'error' });
+    }
+  };
 
   const handleDelete = async () => {
     if (!toDelete) return;
@@ -73,8 +83,17 @@ export function CategoriesPage() {
           </Grid>
         </Grid>
 
-        <Toolbar disableGutters sx={{ mb: 2 }}>
+        <Toolbar disableGutters sx={{ mb: 2, gap: 1.5 }}>
           <Box sx={{ flexGrow: 1 }} />
+          <Button
+            onClick={handleExport}
+            startIcon={<FileDownloadRounded />}
+            variant="outlined"
+            color="inherit"
+            disabled={loading || categories.length === 0}
+          >
+            Exportar Excel
+          </Button>
           <Button
             onClick={openCreate}
             startIcon={<Add />}
