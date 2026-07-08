@@ -2,14 +2,12 @@ import { http } from './http';
 import type { Product, ProductRequest, ProductPatch } from '../types';
 
 export const productsApi = {
-  list(): Promise<Product[]> {
-    return http.get<Product[]>('/products').then((r) => r.data);
+  list(name?: string): Promise<Product[]> {
+    const qs = name?.trim() ? `?name=${encodeURIComponent(name.trim())}` : '';
+    return http.get<Product[]>(`/products${qs}`).then((r) => r.data);
   },
   getByCategory(categoryId: string): Promise<Product[]> {
     return http.get<Product[]>(`/products/by-category/${categoryId}`).then((r) => r.data);
-  },
-  getByName(name: string): Promise<Product> {
-    return http.get<Product>(`/products/by-name/${encodeURIComponent(name)}`).then((r) => r.data);
   },
   get(id: string): Promise<Product> {
     return http.get<Product>(`/products/${id}`).then((r) => r.data);

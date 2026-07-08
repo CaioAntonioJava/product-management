@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
-  Avatar, Box, Button, Chip, Grid, IconButton, InputAdornment, MenuItem, Paper, Select, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Toolbar, Typography,
+  Avatar, Box, Button, Chip, CircularProgress, Grid, IconButton, InputAdornment, MenuItem, Paper, Select, Skeleton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Toolbar, Typography,
 } from '@mui/material';
-import { Add, Delete, Edit, Search, Clear, Inventory2Rounded, CategoryRounded, WarningAmberRounded, AttachMoneyRounded } from '@mui/icons-material';
+import { Add, Delete, Edit, Search, Clear, Inventory2Rounded, CategoryRounded, WarningAmberRounded, AttachMoneyRounded, FileDownloadRounded } from '@mui/icons-material';
 import { motion } from 'framer-motion';
 import { useSnackbar } from 'notistack';
 import { useProducts } from '../hooks/useProducts';
@@ -14,6 +14,7 @@ import { EmptyState } from '../components/EmptyState';
 import { StatCard } from '../components/StatCard';
 import { PageTransition } from '../components/PageTransition';
 import { BRAND_GRADIENT } from '../theme';
+import { exportProductsToExcel } from '../utils/exports';
 import type { Product } from '../types';
 
 function formatCurrency(value: number) {
@@ -30,7 +31,7 @@ function initials(name: string) {
 
 export function ProductsPage() {
   const { enqueueSnackbar } = useSnackbar();
-  const { products, loading, error, reload } = useProducts();
+  const { products, loading, error, reload, setProducts } = useProducts();
   const { categories } = useCategories();
 
   const [searchName, setSearchName] = useState('');
@@ -40,19 +41,38 @@ export function ProductsPage() {
   const [toDelete, setToDelete] = useState<Product | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  const [foundByName, setFoundByName] = useState<Product | null>(null);
   const [searching, setSearching] = useState(false);
 
   useEffect(() => {
     if (error) enqueueSnackbar(error, { variant: 'error' });
   }, [error, enqueueSnackbar]);
 
+  // Live filter: refetch products as the user types (debounced 300ms).
+  useEffect(() => {
+    let cancelled = false;
+    const handle = setTimeout(async () => {
+      setSearching(true);
+      try {
+        const data = await productsApi.list(searchName);
+        if (!cancelled) setProducts(data);
+      } catch (err) {
+        if (!cancelled) {
+          enqueueSnackbar(err instanceof Error ? err.message : 'Erro ao buscar produtos', { variant: 'error' });
+        }
+      } finally {
+        if (!cancelled) setSearching(false);
+      }
+    }, 300);
+    return () => {
+      cancelled = true;
+      clearTimeout(handle);
+    };
+  }, [searchName, setProducts, enqueueSnackbar]);
+
   const visibleProducts = useMemo(() => {
-    let list = products;
-    if (foundByName) list = [foundByName];
-    if (categoryFilter) list = list.filter((p) => p.categoryId === categoryFilter);
-    return list;
-  }, [products, foundByName, categoryFilter]);
+    if (!categoryFilter) return products;
+    return products.filter((p) => p.categoryId === categoryFilter);
+  }, [products, categoryFilter]);
 
   const stats = useMemo(() => {
     const lowStock = products.filter((p) => p.stockQuantity <= 0).length;
@@ -68,26 +88,18 @@ export function ProductsPage() {
   const openCreate = () => { setEditing(null); setFormOpen(true); };
   const openEdit = (p: Product) => { setEditing(p); setFormOpen(true); };
 
-  const handleSearchByName = async () => {
-    if (!searchName.trim()) { setFoundByName(null); return; }
-    setSearching(true);
+  const handleExport = () => {
     try {
-      const result = await productsApi.getByName(searchName.trim());
-      setFoundByName(result);
-      setCategoryFilter('');
-      enqueueSnackbar('Produto encontrado', { variant: 'success' });
+      exportProductsToExcel(visibleProducts);
+      enqueueSnackbar(`${visibleProducts.length} produto(s) exportado(s)`, { variant: 'success' });
     } catch (err) {
-      setFoundByName(null);
-      enqueueSnackbar(err instanceof Error ? err.message : 'Produto não encontrado', { variant: 'error' });
-    } finally {
-      setSearching(false);
+      enqueueSnackbar(err instanceof Error ? err.message : 'Erro ao exportar', { variant: 'error' });
     }
   };
 
   const clearFilters = () => {
     setSearchName('');
     setCategoryFilter('');
-    setFoundByName(null);
   };
 
   const handleDelete = async () => {
@@ -105,7 +117,7 @@ export function ProductsPage() {
     }
   };
 
-  const hasFilters = Boolean(searchName || categoryFilter || foundByName);
+  const hasFilters = Boolean(searchName || categoryFilter);
 
   return (
     <PageTransition>
@@ -154,25 +166,35 @@ export function ProductsPage() {
           <TextField
             placeholder="Buscar produto por nome..."
             value={searchName}
-            onChange={(e) => setSearchName(e.target.value)}
-            onKeyDown={(e) => { if (e.key === 'Enter') handleSearchByName(); }}
+            onChange={(e) => { setSearchName(e.target.value); setCategoryFilter(''); }}
             size="small"
             InputProps={{
               startAdornment: (<InputAdornment position="start" sx={{ color: '#8b5cf6' }}><Search fontSize="small" /></InputAdornment>),
+              endAdornment: searching ? (
+                <InputAdornment position="end">
+                  <CircularProgress size={16} sx={{ color: '#8b5cf6' }} />
+                </InputAdornment>
+              ) : undefined,
             }}
             sx={{ minWidth: 400, flexGrow: 1, maxWidth: 800 }}
           />
-          <Button onClick={handleSearchByName} disabled={searching} variant="outlined" size="small">
-            {searching ? 'Buscando…' : 'Buscar'}
-          </Button>
           {hasFilters && (
             <Button onClick={clearFilters} startIcon={<Clear />} variant="text" color="inherit" size="small">Limpar</Button>
           )}
+          <Button
+            onClick={handleExport}
+            startIcon={<FileDownloadRounded />}
+            variant="outlined"
+            color="inherit"
+            disabled={loading || visibleProducts.length === 0}
+          >
+            Exportar Excel
+          </Button>
           <Box sx={{ flexGrow: 1 }} />
           <Select
             displayEmpty
             value={categoryFilter}
-            onChange={(e) => { setCategoryFilter(e.target.value); setFoundByName(null); }}
+            onChange={(e) => { setCategoryFilter(e.target.value); setSearchName(''); }}
             size="small"
             sx={{
               minWidth: 200,

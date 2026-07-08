@@ -117,7 +117,7 @@ export function ProductFormModal({ open, onClose, onSaved, categories, product }
             <Box sx={{ display: 'flex', gap: 2 }}>
               <TextField
                 label="Preço"
-                placeholder="0,00"
+                placeholder="R$"
                 inputMode="decimal"
                 value={form.price}
                 onChange={(e) => update('price', e.target.value)}
