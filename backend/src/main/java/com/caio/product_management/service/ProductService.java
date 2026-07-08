@@ -9,6 +9,7 @@ import com.caio.product_management.exception.ResourceNotFoundException;
 import com.caio.product_management.repository.CategoryRepository;
 import com.caio.product_management.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,8 +24,12 @@ public class ProductService {
     private final CategoryRepository categoryRepository;
 
     @Transactional(readOnly = true)
-    public List<ProductResponseDTO> findAll() {
-        return productRepository.findAll().stream()
+    public List<ProductResponseDTO> findAll(String name) {
+        String trimmed = (name == null) ? "" : name.trim();
+        List<Product> list = trimmed.isEmpty()
+                ? productRepository.findAll(Sort.by("name").ascending())
+                : productRepository.findByNameContainingIgnoreCase(trimmed);
+        return list.stream()
                 .map(ProductResponseDTO::from)
                 .toList();
     }
@@ -42,13 +47,6 @@ public class ProductService {
     @Transactional(readOnly = true)
     public ProductResponseDTO findById(UUID id) {
         return ProductResponseDTO.from(findProductOrThrow(id));
-    }
-
-    @Transactional(readOnly = true)
-    public ProductResponseDTO findByName(String name) {
-        return productRepository.findByName(name)
-                .map(ProductResponseDTO::from)
-                .orElseThrow(() -> new ResourceNotFoundException("Product not found with name: " + name));
     }
 
     @Transactional

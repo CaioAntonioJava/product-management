@@ -130,9 +130,27 @@
             "method": "GET",
             "header": [],
             "url": {
-              "raw": "{{base_url}}/api/products/by-name/Notebook Gamer",
+              "raw": "{{base_url}}/api/products?name=Notebook Gamer",
               "host": ["{{base_url}}"],
-              "path": ["api", "products", "by-name", "Notebook Gamer"]
+              "path": ["api", "products"],
+              "query": [
+                { "key": "name", "value": "Notebook Gamer" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Search products by name (partial)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/products?name=note",
+              "host": ["{{base_url}}"],
+              "path": ["api", "products"],
+              "query": [
+                { "key": "name", "value": "note" }
+              ]
             }
           }
         },

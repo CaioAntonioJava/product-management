@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -29,8 +30,8 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<List<ProductResponseDTO>> findAll() {
-        return ResponseEntity.ok(productService.findAll());
+    public ResponseEntity<List<ProductResponseDTO>> findAll(@RequestParam(required = false) String name) {
+        return ResponseEntity.ok(productService.findAll(name));
     }
 
     @GetMapping("/by-category/{categoryId}")
@@ -41,11 +42,6 @@ public class ProductController {
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponseDTO> findById(@PathVariable UUID id) {
         return ResponseEntity.ok(productService.findById(id));
-    }
-
-    @GetMapping("/by-name/{name}")
-    public ResponseEntity<ProductResponseDTO> findByName(@PathVariable String name) {
-        return ResponseEntity.ok(productService.findByName(name));
     }
 
     @PostMapping
