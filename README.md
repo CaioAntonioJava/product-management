@@ -1,5 +1,7 @@
 # Product Management
 
+> Este repositório contém a solução desenvolvida para um desafio técnico de uma vaga de Desenvolvedor Web. O projeto foi construído seguindo princípios de código limpo, arquitetura organizada e boas práticas de desenvolvimento, buscando refletir um ambiente de desenvolvimento profissional.
+
 Este projeto roda **backend (Spring Boot)**, **frontend (React + Vite)** e **MySQL 8** em containers.
 O único pré-requisito é ter o **Docker** instalado (com o Docker Compose v2, já embutido no Docker Desktop).
 
